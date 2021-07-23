@@ -4,6 +4,7 @@ import vuePlugin from 'rollup-plugin-vue';
 import typescript from 'rollup-plugin-typescript';
 // For scss styles
 import postcss from "rollup-plugin-postcss";
+import autoprefixer from 'autoprefixer'
 import sass from "node-sass"
 
 
@@ -24,6 +25,7 @@ export default {
 				const result = sass.renderSync({ file: id})
 				resolve({ code: result.css.toString() })
 			}),
-		})
+			plugins: [autoprefixer()]
+		}),
 	],
 };

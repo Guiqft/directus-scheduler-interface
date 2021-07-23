@@ -1,16 +1,22 @@
 <template>
-    <v-input :model-value="value" @update:model-value="handleInput" />
-    <v-select
-        placeholder="Selecione um médico para agendamento"
-        :model-value="selectedDoctor.name"
-        @update:model-value="handleInput"
-        :items="doctorList"
-    />
+    <div class="scheduling-container">
+        <v-select
+            placeholder="Selecione um médico para agendamento"
+            :model-value="selectedDoctor.name"
+            @update:model-value="handleInput"
+            :items="doctorList"
+        />
+        <date-time-picker
+            v-if="selectedDoctor.name"
+            :disabledDates="selectedDoctor.disabledDays"
+        />
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, inject, ref } from "vue"
 import { IDoctorData, IDoctorDataRaw, parseDoctorInfos } from "./utils"
+import DateTimePicker from "./DateTimePicker.vue"
 
 interface ISelectItem {
     text: string
@@ -19,6 +25,7 @@ interface ISelectItem {
 
 export default defineComponent({
     emits: ["input"],
+    components: { DateTimePicker },
     props: {
         value: { type: String, required: true, default: null },
     },
