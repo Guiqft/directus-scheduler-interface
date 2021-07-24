@@ -25,13 +25,14 @@ export interface IDoctorDataRaw {
     sabado_fim?: string
 }
 
-interface IScheduleDay {
+export interface IScheduleDay {
     day: number
     start_time: string
     end_time: string
 }
 
 export interface IDoctorData {
+    id: string | number
     name: string
     consultTime: number
     avaiableDays: IScheduleDay[]
@@ -71,14 +72,16 @@ const parseDoctorInfos = (data: IDoctorDataRaw): IDoctorData => {
 
             avaiableDays.push({
                 day: daysMap[day],
-                start_time: start_time.substring(0, start_time.length - 3),
-                end_time: end_time.substring(0, end_time.length - 3),
+                start_time:
+                    start_time.substring(0, start_time.length - 3) + ":00",
+                end_time: end_time.substring(0, end_time.length - 3) + ":00",
             })
         } else {
             disabledDays.push(daysMap[day])
         }
     })
     return {
+        id: data.id,
         name: data.nome_do_medico,
         consultTime: data.tempo,
         avaiableDays,
