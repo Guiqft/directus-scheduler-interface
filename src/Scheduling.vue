@@ -1,95 +1,112 @@
 <template>
     <div class="scheduling-container">
-        <v-select
-            placeholder="Selecione um médico para agendamento"
-            :model-value="selectedDoctor.name"
-            @update:model-value="handleDoctorSelection"
-            :items="doctorList"
-        />
+        <p v-if="error" class="error">{{ error }}</p>
         <date-time-picker
-            v-if="selectedDoctor.name"
-            :initialState="value?.date"
-            :dayTimes="selectedDoctor.avaiableDays"
-            :disabledDates="selectedDoctor.disabledDays"
-            :timeStep="selectedDoctor.consultTime"
+            v-if="doctorSchedule"
+            :dayTimes="doctorSchedule.avaiableDays"
+            :disabledDates="doctorSchedule.disabledDays"
+            :timeStep="doctorConsultTime"
             @input="emitSchedule"
+            :initialState="value"
         />
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, inject, ref } from "vue"
-import { IDoctorData, IDoctorDataRaw, parseDoctorInfos } from "./utils"
+import { defineComponent, inject, ref, watch } from "vue"
+import { IDoctorSchedule, parseDoctorSchedule } from "./utils"
 import DateTimePicker from "./DateTimePicker.vue"
-
-interface ISelectItem {
-    text: string
-    value: any
-}
-
-interface IEmitData {
-    doctor: string | number
-    date: string
-}
 
 export default defineComponent({
     emits: ["input"],
     components: { DateTimePicker },
     props: {
         value: {
-            type: (): IEmitData => ({} as IEmitData),
+            type: Date,
             required: true,
             default: null,
         },
     },
     setup(props, { emit }) {
         const system = inject("system") as Record<string, any>
-        const selectedDoctor = ref({} as IDoctorData)
-        const doctorList = ref([] as ISelectItem[])
+        const values = inject("values") as Record<string, any>
 
-        onMounted(async () => {
-            // fetching Doctors data
-            const response = await system.api.get("items/medico")
-            if (response.status === 200) {
-                doctorList.value = response.data.data.map(
-                    (doctor: IDoctorDataRaw) => ({
-                        text: doctor.nome_do_medico,
-                        value: doctor,
-                    })
-                )
-            }
+        const error = ref(null)
 
-            // setting existing schedule value
-            if (props.value !== null) {
-                const doctorData = doctorList.value.find(
-                    ({ value }) => value.id === props.value.doctor
-                )
+        const doctorSchedule = ref({} as IDoctorSchedule)
+        const doctorConsultTime = ref(null as number)
 
-                selectedDoctor.value = parseDoctorInfos(doctorData.value)
-            }
-        })
+        watch(
+            values,
+            async () => {
+                try {
+                    // getting doctor schedule data raw
+                    const doctorId = values.value.medico
+                    if (doctorId) {
+                        const response = (
+                            await system.api.get(
+                                `items/cronograma_medicos/?filter={ "medico": { "_eq": "${doctorId}" }}`
+                            )
+                        ).data.data[0]
 
-        const handleDoctorSelection = (value: IDoctorDataRaw) => {
-            selectedDoctor.value = parseDoctorInfos(value)
+                        // getting doctor consult time
+                        doctorConsultTime.value = response.tempo_atendimento
+                        if (!doctorConsultTime) {
+                            error.value =
+                                "É necessário configurar o cronograma do médico selecionado"
+                        } else {
+                            // getting days relations ids
+                            const doctorScheduleRelations =
+                                response.dias_de_atendimento as number[]
+
+                            // getting ids from doctor relation
+                            const doctorScheduleDaysIds = (
+                                await system.api.get(
+                                    `items/cronograma_medicos_dias_atendimento/?filter={ "id": { "_in": [${doctorScheduleRelations.toString()}] }}`
+                                )
+                            ).data.data.map(
+                                ({
+                                    dias_atendimento_id,
+                                }: {
+                                    dias_atendimento_id: number
+                                }) => dias_atendimento_id
+                            )
+
+                            // getting days schedule
+                            doctorSchedule.value = parseDoctorSchedule(
+                                (
+                                    await system.api.get(
+                                        `items/dias_atendimento/?filter={ "id": { "_in": [${doctorScheduleDaysIds.toString()}] }}`
+                                    )
+                                ).data.data
+                            )
+
+                            error.value = null
+                        }
+                    } else {
+                        error.value = "Por favor, selecione um médico."
+                        doctorSchedule.value = null
+                    }
+                } catch (e) {
+                    console.error(e)
+                    error.value =
+                        "Não foi possível obter os dados do médico. Contate o suporte."
+                }
+            },
+            { immediate: true }
+        )
+
+        const emitSchedule = (selectedDate: Date) => {
+            emit("input", selectedDate)
         }
 
-        const emitSchedule = (date: Date) => {
-            if (date) {
-                emit("input", {
-                    doctor: selectedDoctor.value.id,
-                    date: date.toString(),
-                })
-            } else emit("input", null)
-        }
-
-        return {
-            handleDoctorSelection,
-            selectedDoctor,
-            doctorList,
-            emitSchedule,
-        }
+        return { error, doctorSchedule, doctorConsultTime, emitSchedule }
     },
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.error {
+    color: var(--warning);
+}
+</style>

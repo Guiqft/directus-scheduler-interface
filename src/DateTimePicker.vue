@@ -1,12 +1,10 @@
 <template>
     <div class="datetime-picker-container">
-        <p>Escolha a data e o horário do agendamento:</p>
         <DatePicker
             title-position="left"
             mode="datetime"
             locale="pt-BR"
             timezone="Brazil/DeNoronha"
-            :is24hr="true"
             :min-date="dateLimits.min"
             :max-date="dateLimits.max"
             :disabled-dates="{ weekdays: disabledDates }"
@@ -14,8 +12,12 @@
             :model-config="modelConfig"
             :model-value="date"
             @update:model-value="handleDateInput"
+            is-expanded
+            is24hr
         />
-
+        <p class="note" v-if="timeStep">
+            O agendamento tem um período de {{ timeStep }} minutos
+        </p>
         <p class="warning" v-if="error">{{ error }}</p>
     </div>
 </template>
@@ -24,7 +26,7 @@
 import { defineComponent, onMounted, ref } from "vue"
 import { Calendar, DatePicker } from "v-calendar"
 import { addDays, getDay, parseISO, format, formatISO } from "date-fns"
-import { IScheduleDay } from "./utils"
+import { IScheduleDay, toISOString } from "./utils"
 
 export default defineComponent({
     emits: ["input"],
@@ -72,7 +74,7 @@ export default defineComponent({
             } else {
                 error.value = null
                 date.value = value
-                emit("input", parsedDate)
+                emit("input", toISOString(parsedDate))
             }
         }
 
@@ -91,7 +93,13 @@ export default defineComponent({
 .datetime-picker-container {
     margin: 20px;
 
-    p {
+    .note {
+        margin-left: 10px;
+        color: var(--foreground-subdued);
+    }
+
+    .warning {
+        color: var(--warning);
         margin: 10px 0;
     }
 }

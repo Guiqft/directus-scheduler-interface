@@ -1,92 +1,83 @@
-export interface IDoctorDataRaw {
-    id: number | string
-    nome_do_medico: string
-    tempo: number
-    domingo: "sim" | "nao"
-    domingo_inicio?: string
-    domingo_fim?: string
-    segunda: "sim" | "nao"
-    segunda_inicio?: string
-    segunda_fim?: string
-    terca: "sim" | "nao"
-    terca_inicio?: "08:00:31"
-    terca_fim?: "12:00:36"
-    quarta: "sim" | "nao"
-    quarta_inicio?: string
-    quarta_fim?: string
-    quinta: "sim" | "nao"
-    quinta_inicio?: string
-    quinta_fim?: string
-    sexta: "sim" | "nao"
-    sexta_inicio?: string
-    sexta_fim?: string
-    sabado: "sim" | "nao"
-    sabado_inicio?: string
-    sabado_fim?: string
-}
-
 export interface IScheduleDay {
     day: number
     start_time: string
     end_time: string
 }
 
-export interface IDoctorData {
-    id: string | number
-    name: string
-    consultTime: number
+export interface IDoctorSchedule {
     avaiableDays: IScheduleDay[]
     disabledDays: number[]
 }
 
-const parseDoctorInfos = (data: IDoctorDataRaw): IDoctorData => {
-    const days = [
-        "domingo",
-        "segunda",
-        "terca",
-        "quarta",
-        "quinta",
-        "sexta",
-        "sabado",
-    ]
+interface IDoctorScheduleRaw {
+    dia_da_semana: string
+    hora_inicio_atendimento: string
+    hora_final_atendimento: string
+}
+
+const parseDoctorSchedule = (data: IDoctorScheduleRaw[]): IDoctorSchedule => {
     const daysMap = {
-        domingo: 1,
-        segunda: 2,
-        terca: 3,
-        quarta: 4,
-        quinta: 5,
-        sexta: 6,
-        sabado: 7,
+        Domingo: 1,
+        "Segunda-feira": 2,
+        "Terça-feira": 3,
+        "Quarta-feira": 4,
+        "Quinta-feira": 5,
+        "Sexta-feira": 6,
+        Sábado: 7,
     } as Record<string, number>
 
-    let avaiableDays: IScheduleDay[] = []
-    let disabledDays: number[] = []
-    days.map((day) => {
-        if ((data as Record<string, any>)[day] === "sim") {
-            const start_time = (data as Record<string, any>)[
-                `${day}_inicio`
-            ] as string
-            const end_time = (data as Record<string, any>)[
-                `${day}_fim`
-            ] as string
+    const avaiableDays: IScheduleDay[] = data.map((el) => ({
+        day: daysMap[el.dia_da_semana],
+        start_time:
+            el.hora_inicio_atendimento.substring(
+                0,
+                el.hora_inicio_atendimento.length - 3
+            ) + ":00",
+        end_time:
+            el.hora_final_atendimento.substring(
+                0,
+                el.hora_final_atendimento.length - 3
+            ) + ":00",
+    }))
 
-            avaiableDays.push({
-                day: daysMap[day],
-                start_time:
-                    start_time.substring(0, start_time.length - 3) + ":00",
-                end_time: end_time.substring(0, end_time.length - 3) + ":00",
-            })
-        } else {
-            disabledDays.push(daysMap[day])
-        }
-    })
+    const disabledDays: number[] = Object.keys(daysMap)
+        .map((day) => {
+            if (!data.find(({ dia_da_semana }) => dia_da_semana === day)) {
+                return daysMap[day]
+            }
+        })
+        .filter((el) => el !== undefined)
+
     return {
-        id: data.id,
-        name: data.nome_do_medico,
-        consultTime: data.tempo,
         avaiableDays,
         disabledDays,
     }
 }
 
-export { parseDoctorInfos }
+const toISOString = (date: Date): string => {
+    var tzo = -date.getTimezoneOffset(),
+        dif = tzo >= 0 ? "+" : "-",
+        pad = function (num: number) {
+            var norm = Math.floor(Math.abs(num))
+            return (norm < 10 ? "0" : "") + norm
+        }
+    return (
+        date.getFullYear() +
+        "-" +
+        pad(date.getMonth() + 1) +
+        "-" +
+        pad(date.getDate()) +
+        "T" +
+        pad(date.getHours()) +
+        ":" +
+        pad(date.getMinutes()) +
+        ":" +
+        pad(date.getSeconds()) +
+        dif +
+        pad(tzo / 60) +
+        ":" +
+        pad(tzo % 60)
+    )
+}
+
+export { parseDoctorSchedule, toISOString }
