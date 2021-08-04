@@ -18155,7 +18155,7 @@ var index = {
     description: "Interface para agendar um horário em com determinado médico",
     icon: "box",
     component: script,
-    types: ["dateTime"],
+    types: ["dateTime", "timestamp"],
 };
 
 export default index;
