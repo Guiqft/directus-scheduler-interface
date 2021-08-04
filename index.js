@@ -1,4 +1,4 @@
-import { reactive, computed, h, openBlock, createBlock, createVNode, resolveComponent, renderSlot, toDisplayString, Fragment, renderList, Transition, withCtx, createCommentVNode, createTextVNode, mergeProps, pushScopeId, popScopeId, withModifiers, withScopeId, defineComponent, ref, onMounted, inject, watch } from 'vue';
+import { reactive, computed, h, openBlock, createBlock, createVNode, resolveComponent, renderSlot, toDisplayString, Fragment, renderList, Transition, withCtx, createCommentVNode, createTextVNode, mergeProps, pushScopeId, popScopeId, withModifiers, withScopeId, defineComponent, ref, inject, watch } from 'vue';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -17584,111 +17584,6 @@ function cleanEscapedString(input) {
 }
 
 /**
- * @name formatISO
- * @category Common Helpers
- * @summary Format the date according to the ISO 8601 standard (http://support.sas.com/documentation/cdl/en/lrdict/64316/HTML/default/viewer.htm#a003169814.htm).
- *
- * @description
- * Return the formatted date string in ISO 8601 format. Options may be passed to control the parts and notations of the date.
- *
- * @param {Date|Number} date - the original date
- * @param {Object} [options] - an object with options.
- * @param {'extended'|'basic'} [options.format='extended'] - if 'basic', hide delimiters between date and time values.
- * @param {'complete'|'date'|'time'} [options.representation='complete'] - format date, time with time zone, or both.
- * @returns {String} the formatted date string
- * @throws {TypeError} 1 argument required
- * @throws {RangeError} `date` must not be Invalid Date
- * @throws {RangeError} `options.format` must be 'extended' or 'basic'
- * @throws {RangeError} `options.represenation` must be 'date', 'time' or 'complete'
- *
- * @example
- * // Represent 18 September 2019 in ISO 8601 format (UTC):
- * const result = formatISO(new Date(2019, 8, 18, 19, 0, 52))
- * //=> '2019-09-18T19:00:52Z'
- *
- * @example
- * // Represent 18 September 2019 in ISO 8601, short format (UTC):
- * const result = formatISO(new Date(2019, 8, 18, 19, 0, 52), { format: 'basic' })
- * //=> '20190918T190052'
- *
- * @example
- * // Represent 18 September 2019 in ISO 8601 format, date only:
- * const result = formatISO(new Date(2019, 8, 18, 19, 0, 52), { representation: 'date' })
- * //=> '2019-09-18'
- *
- * @example
- * // Represent 18 September 2019 in ISO 8601 format, time only (UTC):
- * const result = formatISO(new Date(2019, 8, 18, 19, 0, 52), { representation: 'time' })
- * //=> '19:00:52Z'
- */
-
-function formatISO(dirtyDate, dirtyOptions) {
-  if (arguments.length < 1) {
-    throw new TypeError("1 argument required, but only ".concat(arguments.length, " present"));
-  }
-
-  var originalDate = toDate(dirtyDate);
-
-  if (!isValid(originalDate)) {
-    throw new RangeError('Invalid time value');
-  }
-
-  var options = dirtyOptions || {};
-  var format = options.format == null ? 'extended' : String(options.format);
-  var representation = options.representation == null ? 'complete' : String(options.representation);
-
-  if (format !== 'extended' && format !== 'basic') {
-    throw new RangeError("format must be 'extended' or 'basic'");
-  }
-
-  if (representation !== 'date' && representation !== 'time' && representation !== 'complete') {
-    throw new RangeError("representation must be 'date', 'time', or 'complete'");
-  }
-
-  var result = '';
-  var tzOffset = '';
-  var dateDelimiter = format === 'extended' ? '-' : '';
-  var timeDelimiter = format === 'extended' ? ':' : ''; // Representation is either 'date' or 'complete'
-
-  if (representation !== 'time') {
-    var day = addLeadingZeros(originalDate.getDate(), 2);
-    var month = addLeadingZeros(originalDate.getMonth() + 1, 2);
-    var year = addLeadingZeros(originalDate.getFullYear(), 4); // yyyyMMdd or yyyy-MM-dd.
-
-    result = "".concat(year).concat(dateDelimiter).concat(month).concat(dateDelimiter).concat(day);
-  } // Representation is either 'time' or 'complete'
-
-
-  if (representation !== 'date') {
-    // Add the timezone.
-    var offset = originalDate.getTimezoneOffset();
-
-    if (offset !== 0) {
-      var absoluteOffset = Math.abs(offset);
-      var hourOffset = addLeadingZeros(Math.floor(absoluteOffset / 60), 2);
-      var minuteOffset = addLeadingZeros(absoluteOffset % 60, 2); // If less than 0, the sign is +, because it is ahead of time.
-
-      var sign = offset < 0 ? '+' : '-';
-      tzOffset = "".concat(sign).concat(hourOffset, ":").concat(minuteOffset);
-    } else {
-      tzOffset = 'Z';
-    }
-
-    var hour = addLeadingZeros(originalDate.getHours(), 2);
-    var minute = addLeadingZeros(originalDate.getMinutes(), 2);
-    var second = addLeadingZeros(originalDate.getSeconds(), 2); // If there's also date, separate it with time with 'T'
-
-    var separator = result === '' ? '' : 'T'; // Creates a time string consisting of hour, minute, and second, separated by delimiters, if defined.
-
-    var time = [hour, minute, second].join(timeDelimiter); // HHmmss or HH:mm:ss.
-
-    result = "".concat(result).concat(separator).concat(time).concat(tzOffset);
-  }
-
-  return result;
-}
-
-/**
  * @name getDay
  * @category Weekday Helpers
  * @summary Get the day of the week of the given date.
@@ -18018,7 +17913,7 @@ var script$1 = defineComponent({
     },
     setup: function (props, _a) {
         var emit = _a.emit;
-        var date = ref(null);
+        var date = ref(new Date(props.initialState));
         var dateLimits = ref({
             min: new Date(),
             max: addDays(new Date(), 30),
@@ -18028,12 +17923,6 @@ var script$1 = defineComponent({
             type: "string",
             mask: "iso",
             timeAdjust: "12:00:00",
-        });
-        onMounted(function () {
-            if (props.initialState) {
-                var currentDate = new Date(props.initialState);
-                date.value = formatISO(currentDate).replace("-03:00", "XXX");
-            }
         });
         var handleDateInput = function (value) {
             var parsedDate = parseISO(value.substring(0, value.length - 3));
@@ -18047,7 +17936,7 @@ var script$1 = defineComponent({
             }
             else {
                 error.value = null;
-                date.value = value;
+                date.value = new Date(value);
                 emit("input", toISOString(parsedDate));
             }
         };
@@ -18083,7 +17972,6 @@ const render$1 = /*#__PURE__*/_withId$1((_ctx, _cache, $props, $setup, $data, $o
       "title-position": "left",
       mode: "datetime",
       locale: "pt-BR",
-      timezone: "Brazil/DeNoronha",
       "min-date": _ctx.dateLimits.min,
       "max-date": _ctx.dateLimits.max,
       "disabled-dates": { weekdays: _ctx.disabledDates },

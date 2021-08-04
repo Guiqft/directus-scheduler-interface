@@ -4,7 +4,6 @@
             title-position="left"
             mode="datetime"
             locale="pt-BR"
-            timezone="Brazil/DeNoronha"
             :min-date="dateLimits.min"
             :max-date="dateLimits.max"
             :disabled-dates="{ weekdays: disabledDates }"
@@ -23,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue"
+import { defineComponent, ref } from "vue"
 import { Calendar, DatePicker } from "v-calendar"
 import { addDays, getDay, parseISO, format, formatISO } from "date-fns"
 import { IScheduleDay, toISOString } from "./utils"
@@ -38,7 +37,7 @@ export default defineComponent({
         initialState: { type: String, default: null },
     },
     setup(props, { emit }) {
-        const date = ref(null)
+        const date = ref(new Date(props.initialState))
         const dateLimits = ref({
             min: new Date(),
             max: addDays(new Date(), 30),
@@ -49,13 +48,6 @@ export default defineComponent({
             type: "string",
             mask: "iso",
             timeAdjust: "12:00:00",
-        })
-
-        onMounted(() => {
-            if (props.initialState) {
-                const currentDate = new Date(props.initialState)
-                date.value = formatISO(currentDate).replace("-03:00", "XXX")
-            }
         })
 
         const handleDateInput = (value: string) => {
@@ -73,7 +65,7 @@ export default defineComponent({
                 emit("input", null)
             } else {
                 error.value = null
-                date.value = value
+                date.value = new Date(value)
                 emit("input", toISOString(parsedDate))
             }
         }
