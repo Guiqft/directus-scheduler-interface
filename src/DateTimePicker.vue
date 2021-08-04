@@ -11,6 +11,7 @@
             :model-config="modelConfig"
             :model-value="date"
             @update:model-value="handleDateInput"
+            :is-dark="isDark"
             is-expanded
             is24hr
         />
@@ -22,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue"
+import { defineComponent, onMounted, ref } from "vue"
 import { Calendar, DatePicker } from "v-calendar"
 import { addDays, getDay, parseISO, format, formatISO } from "date-fns"
 import { IScheduleDay, toISOString } from "./utils"
@@ -37,6 +38,8 @@ export default defineComponent({
         initialState: { type: String, default: null },
     },
     setup(props, { emit }) {
+        const isDark = ref(false)
+
         const date = ref(new Date(props.initialState))
         const dateLimits = ref({
             min: new Date(),
@@ -70,12 +73,26 @@ export default defineComponent({
             }
         }
 
+        onMounted(() => {
+            //checking directus theme
+            const sidebarEl = document.getElementsByClassName("sidebar")[0]
+            if (sidebarEl) {
+                const { backgroundColor } = getComputedStyle(sidebarEl)
+                if (backgroundColor === "rgb(46, 60, 67)") {
+                    isDark.value = true
+                } else if (backgroundColor === "rgb(240, 244, 249)") {
+                    isDark.value = false
+                }
+            }
+        })
+
         return {
             date,
             dateLimits,
             handleDateInput,
             modelConfig,
             error,
+            isDark,
         }
     },
 })

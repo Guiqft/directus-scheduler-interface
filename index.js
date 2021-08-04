@@ -1,4 +1,4 @@
-import { reactive, computed, h, openBlock, createBlock, createVNode, resolveComponent, renderSlot, toDisplayString, Fragment, renderList, Transition, withCtx, createCommentVNode, createTextVNode, mergeProps, pushScopeId, popScopeId, withModifiers, withScopeId, defineComponent, ref, inject, watch } from 'vue';
+import { reactive, computed, h, openBlock, createBlock, createVNode, resolveComponent, renderSlot, toDisplayString, Fragment, renderList, Transition, withCtx, createCommentVNode, createTextVNode, mergeProps, pushScopeId, popScopeId, withModifiers, withScopeId, defineComponent, ref, onMounted, inject, watch } from 'vue';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -10667,7 +10667,7 @@ function contains(parent, child) {
   return false;
 }
 
-function getComputedStyle(element) {
+function getComputedStyle$1(element) {
   return getWindow(element).getComputedStyle(element);
 }
 
@@ -10700,7 +10700,7 @@ function getParentNode(element) {
 
 function getTrueOffsetParent(element) {
   if (!isHTMLElement(element) || // https://github.com/popperjs/popper-core/issues/837
-  getComputedStyle(element).position === 'fixed') {
+  getComputedStyle$1(element).position === 'fixed') {
     return null;
   }
 
@@ -10715,7 +10715,7 @@ function getContainingBlock(element) {
 
   if (isIE && isHTMLElement(element)) {
     // In IE 9, 10 and 11 fixed elements containing block is always established by the viewport
-    var elementCss = getComputedStyle(element);
+    var elementCss = getComputedStyle$1(element);
 
     if (elementCss.position === 'fixed') {
       return null;
@@ -10725,7 +10725,7 @@ function getContainingBlock(element) {
   var currentNode = getParentNode(element);
 
   while (isHTMLElement(currentNode) && ['html', 'body'].indexOf(getNodeName(currentNode)) < 0) {
-    var css = getComputedStyle(currentNode); // This is non-exhaustive but covers the most common CSS properties that
+    var css = getComputedStyle$1(currentNode); // This is non-exhaustive but covers the most common CSS properties that
     // create a containing block.
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
 
@@ -10745,11 +10745,11 @@ function getOffsetParent(element) {
   var window = getWindow(element);
   var offsetParent = getTrueOffsetParent(element);
 
-  while (offsetParent && isTableElement(offsetParent) && getComputedStyle(offsetParent).position === 'static') {
+  while (offsetParent && isTableElement(offsetParent) && getComputedStyle$1(offsetParent).position === 'static') {
     offsetParent = getTrueOffsetParent(offsetParent);
   }
 
-  if (offsetParent && (getNodeName(offsetParent) === 'html' || getNodeName(offsetParent) === 'body' && getComputedStyle(offsetParent).position === 'static')) {
+  if (offsetParent && (getNodeName(offsetParent) === 'html' || getNodeName(offsetParent) === 'body' && getComputedStyle$1(offsetParent).position === 'static')) {
     return window;
   }
 
@@ -10931,7 +10931,7 @@ function mapToStyles(_ref2) {
     if (offsetParent === getWindow(popper)) {
       offsetParent = getDocumentElement(popper);
 
-      if (getComputedStyle(offsetParent).position !== 'static') {
+      if (getComputedStyle$1(offsetParent).position !== 'static') {
         heightProp = 'scrollHeight';
         widthProp = 'scrollWidth';
       }
@@ -10979,7 +10979,7 @@ function computeStyles(_ref4) {
       roundOffsets = _options$roundOffsets === void 0 ? true : _options$roundOffsets;
 
   if (process.env.NODE_ENV !== "production") {
-    var transitionProperty = getComputedStyle(state.elements.popper).transitionProperty || '';
+    var transitionProperty = getComputedStyle$1(state.elements.popper).transitionProperty || '';
 
     if (adaptive && ['transform', 'top', 'right', 'bottom', 'left'].some(function (property) {
       return transitionProperty.indexOf(property) >= 0;
@@ -11169,7 +11169,7 @@ function getDocumentRect(element) {
   var x = -winScroll.scrollLeft + getWindowScrollBarX(element);
   var y = -winScroll.scrollTop;
 
-  if (getComputedStyle(body || html).direction === 'rtl') {
+  if (getComputedStyle$1(body || html).direction === 'rtl') {
     x += max(html.clientWidth, body ? body.clientWidth : 0) - width;
   }
 
@@ -11183,7 +11183,7 @@ function getDocumentRect(element) {
 
 function isScrollParent(element) {
   // Firefox wants us to check `-x` and `-y` variations as well
-  var _getComputedStyle = getComputedStyle(element),
+  var _getComputedStyle = getComputedStyle$1(element),
       overflow = _getComputedStyle.overflow,
       overflowX = _getComputedStyle.overflowX,
       overflowY = _getComputedStyle.overflowY;
@@ -11258,7 +11258,7 @@ function getClientRectFromMixedType(element, clippingParent) {
 
 function getClippingParents(element) {
   var clippingParents = listScrollParents(getParentNode(element));
-  var canEscapeClipping = ['absolute', 'fixed'].indexOf(getComputedStyle(element).position) >= 0;
+  var canEscapeClipping = ['absolute', 'fixed'].indexOf(getComputedStyle$1(element).position) >= 0;
   var clipperElement = canEscapeClipping && isHTMLElement(element) ? getOffsetParent(element) : element;
 
   if (!isElement(clipperElement)) {
@@ -12162,7 +12162,7 @@ function popperGenerator(generatorOptions) {
             }
           }
 
-          var _getComputedStyle = getComputedStyle(popper),
+          var _getComputedStyle = getComputedStyle$1(popper),
               marginTop = _getComputedStyle.marginTop,
               marginRight = _getComputedStyle.marginRight,
               marginBottom = _getComputedStyle.marginBottom,
@@ -17913,6 +17913,7 @@ var script$1 = defineComponent({
     },
     setup: function (props, _a) {
         var emit = _a.emit;
+        var isDark = ref(false);
         var date = ref(new Date(props.initialState));
         var dateLimits = ref({
             min: new Date(),
@@ -17940,12 +17941,25 @@ var script$1 = defineComponent({
                 emit("input", toISOString(parsedDate));
             }
         };
+        onMounted(function () {
+            var sidebarEl = document.getElementsByClassName("sidebar")[0];
+            if (sidebarEl) {
+                var backgroundColor = getComputedStyle(sidebarEl).backgroundColor;
+                if (backgroundColor === "rgb(46, 60, 67)") {
+                    isDark.value = true;
+                }
+                else if (backgroundColor === "rgb(240, 244, 249)") {
+                    isDark.value = false;
+                }
+            }
+        });
         return {
             date: date,
             dateLimits: dateLimits,
             handleDateInput: handleDateInput,
             modelConfig: modelConfig,
             error: error,
+            isDark: isDark,
         };
     },
 });
@@ -17979,9 +17993,10 @@ const render$1 = /*#__PURE__*/_withId$1((_ctx, _cache, $props, $setup, $data, $o
       "model-config": _ctx.modelConfig,
       "model-value": _ctx.date,
       "onUpdate:modelValue": _ctx.handleDateInput,
+      "is-dark": _ctx.isDark,
       "is-expanded": "",
       is24hr: ""
-    }, null, 8 /* PROPS */, ["min-date", "max-date", "disabled-dates", "minute-increment", "model-config", "model-value", "onUpdate:modelValue"]),
+    }, null, 8 /* PROPS */, ["min-date", "max-date", "disabled-dates", "minute-increment", "model-config", "model-value", "onUpdate:modelValue", "is-dark"]),
     (_ctx.timeStep)
       ? (openBlock(), createBlock("p", _hoisted_2$1, " O agendamento tem um período de " + toDisplayString(_ctx.timeStep) + " minutos ", 1 /* TEXT */))
       : createCommentVNode("v-if", true),
