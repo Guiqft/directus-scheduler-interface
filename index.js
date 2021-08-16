@@ -5468,7 +5468,7 @@ function toDate$1(argument) {
  * //=> Thu Sep 11 2014 00:00:00
  */
 
-function addDays$1(dirtyDate, dirtyAmount) {
+function addDays(dirtyDate, dirtyAmount) {
   requiredArgs$1(2, arguments);
   var date = toDate$1(dirtyDate);
   var amount = toInteger$1(dirtyAmount);
@@ -7429,7 +7429,7 @@ var DateInfo = /*#__PURE__*/function () {
       start = end;
       end = temp;
     } else if (start && config.span >= 1) {
-      end = addDays$1(start, config.span - 1);
+      end = addDays(start, config.span - 1);
     } // Assign start and end dates
 
 
@@ -7476,7 +7476,7 @@ var DateInfo = /*#__PURE__*/function () {
     value: function startOfWeek(date) {
       var day = date.getDay() + 1;
       var daysToAdd = day >= this.firstDayOfWeek ? this.firstDayOfWeek - day : -(7 - (this.firstDayOfWeek - day));
-      return addDays$1(date, daysToAdd);
+      return addDays(date, daysToAdd);
     }
   }, {
     key: "diffInDays",
@@ -7517,7 +7517,7 @@ var DateInfo = /*#__PURE__*/function () {
 
       for (; !state.finished && state.date <= end; state.i++) {
         result = fn(state);
-        state.date = addDays$1(state.date, 1);
+        state.date = addDays(state.date, 1);
         state.day = this.locale.getDateParts(state.date);
       }
 
@@ -8690,7 +8690,7 @@ var Locale = /*#__PURE__*/function () {
         var isoWeeknumbers = [];
 
         for (var i = 0; i < weeks; i++) {
-          var date = addDays$1(firstDayOfMonth, i * 7);
+          var date = addDays(firstDayOfMonth, i * 7);
           weeknumbers.push(getWeek(date, {
             weekStartsOn: weekStartsOn
           }));
@@ -12964,7 +12964,7 @@ script$6.render = render$4;
  * //=> Sun Feb 01 2015 00:00:00
  */
 
-function addMonths(dirtyDate, dirtyAmount) {
+function addMonths$1(dirtyDate, dirtyAmount) {
   requiredArgs$1(2, arguments);
   var date = toDate$1(dirtyDate);
   var amount = toInteger$1(dirtyAmount);
@@ -13031,10 +13031,10 @@ function addMonths(dirtyDate, dirtyAmount) {
  * //=> Sun Sep 01 2019 00:00:00
  */
 
-function addYears(dirtyDate, dirtyAmount) {
+function addYears$1(dirtyDate, dirtyAmount) {
   requiredArgs$1(2, arguments);
   var amount = toInteger$1(dirtyAmount);
-  return addMonths(dirtyDate, amount * 12);
+  return addMonths$1(dirtyDate, amount * 12);
 }
 
 var AttributeStore = /*#__PURE__*/function () {
@@ -13851,42 +13851,42 @@ var script$5 = {
         case 'ArrowLeft':
           {
             // Move to previous day
-            newDate = addDays$1(date, -1);
+            newDate = addDays(date, -1);
             break;
           }
 
         case 'ArrowRight':
           {
             // Move to next day
-            newDate = addDays$1(date, 1);
+            newDate = addDays(date, 1);
             break;
           }
 
         case 'ArrowUp':
           {
             // Move to previous week
-            newDate = addDays$1(date, -7);
+            newDate = addDays(date, -7);
             break;
           }
 
         case 'ArrowDown':
           {
             // Move to next week
-            newDate = addDays$1(date, 7);
+            newDate = addDays(date, 7);
             break;
           }
 
         case 'Home':
           {
             // Move to first weekday position
-            newDate = addDays$1(date, -day.weekdayPosition + 1);
+            newDate = addDays(date, -day.weekdayPosition + 1);
             break;
           }
 
         case 'End':
           {
             // Move to last weekday position
-            newDate = addDays$1(date, day.weekdayPositionFromEnd);
+            newDate = addDays(date, day.weekdayPositionFromEnd);
             break;
           }
 
@@ -13894,10 +13894,10 @@ var script$5 = {
           {
             if (event.altKey) {
               // Move to previous year w/ Alt/Option key
-              newDate = addYears(date, -1);
+              newDate = addYears$1(date, -1);
             } else {
               // Move to previous month
-              newDate = addMonths(date, -1);
+              newDate = addMonths$1(date, -1);
             }
 
             break;
@@ -13907,10 +13907,10 @@ var script$5 = {
           {
             if (event.altKey) {
               // Move to next year w/ Alt/Option key
-              newDate = addYears(date, 1);
+              newDate = addYears$1(date, 1);
             } else {
               // Move to next month
-              newDate = addMonths(date, 1);
+              newDate = addMonths$1(date, 1);
             }
 
             break;
@@ -15248,29 +15248,29 @@ function toDate(argument) {
 }
 
 /**
- * @name addDays
- * @category Day Helpers
- * @summary Add the specified number of days to the given date.
+ * @name addMonths
+ * @category Month Helpers
+ * @summary Add the specified number of months to the given date.
  *
  * @description
- * Add the specified number of days to the given date.
+ * Add the specified number of months to the given date.
  *
  * ### v2.0.0 breaking changes:
  *
  * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
  *
  * @param {Date|Number} date - the date to be changed
- * @param {Number} amount - the amount of days to be added. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
- * @returns {Date} - the new date with the days added
- * @throws {TypeError} - 2 arguments required
+ * @param {Number} amount - the amount of months to be added. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
+ * @returns {Date} the new date with the months added
+ * @throws {TypeError} 2 arguments required
  *
  * @example
- * // Add 10 days to 1 September 2014:
- * const result = addDays(new Date(2014, 8, 1), 10)
- * //=> Thu Sep 11 2014 00:00:00
+ * // Add 5 months to 1 September 2014:
+ * const result = addMonths(new Date(2014, 8, 1), 5)
+ * //=> Sun Feb 01 2015 00:00:00
  */
 
-function addDays(dirtyDate, dirtyAmount) {
+function addMonths(dirtyDate, dirtyAmount) {
   requiredArgs(2, arguments);
   var date = toDate(dirtyDate);
   var amount = toInteger(dirtyAmount);
@@ -15280,12 +15280,38 @@ function addDays(dirtyDate, dirtyAmount) {
   }
 
   if (!amount) {
-    // If 0 days, no-op to avoid changing times in the hour before end of DST
+    // If 0 months, no-op to avoid changing times in the hour before end of DST
     return date;
   }
 
-  date.setDate(date.getDate() + amount);
-  return date;
+  var dayOfMonth = date.getDate(); // The JS Date object supports date math by accepting out-of-bounds values for
+  // month, day, etc. For example, new Date(2020, 0, 0) returns 31 Dec 2019 and
+  // new Date(2020, 13, 1) returns 1 Feb 2021.  This is *almost* the behavior we
+  // want except that dates will wrap around the end of a month, meaning that
+  // new Date(2020, 13, 31) will return 3 Mar 2021 not 28 Feb 2021 as desired. So
+  // we'll default to the end of the desired month by adding 1 to the desired
+  // month and using a date of 0 to back up one day to the end of the desired
+  // month.
+
+  var endOfDesiredMonth = new Date(date.getTime());
+  endOfDesiredMonth.setMonth(date.getMonth() + amount + 1, 0);
+  var daysInMonth = endOfDesiredMonth.getDate();
+
+  if (dayOfMonth >= daysInMonth) {
+    // If we're already at the end of the month, then this is the correct date
+    // and we're done.
+    return endOfDesiredMonth;
+  } else {
+    // Otherwise, we now know that setting the original day-of-month value won't
+    // cause an overflow, so set the desired day-of-month. Note that we can't
+    // just set the date of `endOfDesiredMonth` because that object may have had
+    // its time changed in the unusual case where where a DST transition was on
+    // the last day of the month and its local time was in the hour skipped or
+    // repeated next to a DST transition.  So we use `date` instead which is
+    // guaranteed to still have the original time.
+    date.setFullYear(endOfDesiredMonth.getFullYear(), endOfDesiredMonth.getMonth(), dayOfMonth);
+    return date;
+  }
 }
 
 /**
@@ -15333,6 +15359,35 @@ function getTimezoneOffsetInMilliseconds(date) {
   var utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
   utcDate.setUTCFullYear(date.getFullYear());
   return date.getTime() - utcDate.getTime();
+}
+
+/**
+ * @name addYears
+ * @category Year Helpers
+ * @summary Add the specified number of years to the given date.
+ *
+ * @description
+ * Add the specified number of years to the given date.
+ *
+ * ### v2.0.0 breaking changes:
+ *
+ * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+ *
+ * @param {Date|Number} date - the date to be changed
+ * @param {Number} amount - the amount of years to be added. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
+ * @returns {Date} the new date with the years added
+ * @throws {TypeError} 2 arguments required
+ *
+ * @example
+ * // Add 5 years to 1 September 2014:
+ * const result = addYears(new Date(2014, 8, 1), 5)
+ * //=> Sun Sep 01 2019 00:00:00
+ */
+
+function addYears(dirtyDate, dirtyAmount) {
+  requiredArgs(2, arguments);
+  var amount = toInteger(dirtyAmount);
+  return addMonths(dirtyDate, amount * 12);
 }
 
 /**
@@ -17917,7 +17972,7 @@ var script$1 = defineComponent({
         var date = ref(new Date(props.initialState));
         var dateLimits = ref({
             min: new Date(),
-            max: addDays(new Date(), 30),
+            max: addYears(new Date(), 1),
         });
         var error = ref(null);
         var modelConfig = ref({

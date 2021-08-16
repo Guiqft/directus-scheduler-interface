@@ -25,7 +25,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue"
 import { Calendar, DatePicker } from "v-calendar"
-import { addDays, getDay, parseISO, format, formatISO } from "date-fns"
+import { addYears, getDay, parseISO, format, formatISO } from "date-fns"
 import { IScheduleDay, toISOString } from "./utils"
 
 export default defineComponent({
@@ -43,7 +43,7 @@ export default defineComponent({
         const date = ref(new Date(props.initialState))
         const dateLimits = ref({
             min: new Date(),
-            max: addDays(new Date(), 30),
+            max: addYears(new Date(), 1),
         })
         const error = ref(null)
 
