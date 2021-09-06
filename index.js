@@ -18108,7 +18108,7 @@ var script = defineComponent({
     setup: function (props, _a) {
         var _this = this;
         var emit = _a.emit;
-        var system = inject("system");
+        var api = inject("api");
         var values = inject("values");
         var error = ref(null);
         var doctorSchedule = ref({});
@@ -18121,7 +18121,7 @@ var script = defineComponent({
                         _c.trys.push([0, 8, , 9]);
                         doctorId = values.value.medico;
                         if (!doctorId) return [3, 6];
-                        return [4, system.api.get("items/cronograma_medicos/?filter={ \"medico\": { \"_eq\": \"" + doctorId + "\" }}")];
+                        return [4, api.get("items/cronograma_medicos/?filter={ \"medico\": { \"_eq\": \"" + doctorId + "\" }}")];
                     case 1:
                         response = (_c.sent()).data.data[0];
                         doctorConsultTime.value = response.tempo_atendimento;
@@ -18131,7 +18131,7 @@ var script = defineComponent({
                         return [3, 5];
                     case 2:
                         doctorScheduleRelations = response.dias_de_atendimento;
-                        return [4, system.api.get("items/cronograma_medicos_dias_atendimento/?filter={ \"id\": { \"_in\": [" + doctorScheduleRelations.toString() + "] }}")];
+                        return [4, api.get("items/cronograma_medicos_dias_atendimento/?filter={ \"id\": { \"_in\": [" + doctorScheduleRelations.toString() + "] }}")];
                     case 3:
                         doctorScheduleDaysIds = (_c.sent()).data.data.map(function (_a) {
                             var dias_atendimento_id = _a.dias_atendimento_id;
@@ -18139,7 +18139,7 @@ var script = defineComponent({
                         });
                         _a = doctorSchedule;
                         _b = parseDoctorSchedule;
-                        return [4, system.api.get("items/dias_atendimento/?filter={ \"id\": { \"_in\": [" + doctorScheduleDaysIds.toString() + "] }}")];
+                        return [4, api.get("items/dias_atendimento/?filter={ \"id\": { \"_in\": [" + doctorScheduleDaysIds.toString() + "] }}")];
                     case 4:
                         _a.value = _b.apply(void 0, [(_c.sent()).data.data]);
                         error.value = null;

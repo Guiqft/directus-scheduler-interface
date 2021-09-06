@@ -28,7 +28,7 @@ export default defineComponent({
         },
     },
     setup(props, { emit }) {
-        const system = inject("system") as Record<string, any>
+        const api = inject("api") as Record<string, any>
         const values = inject("values") as Record<string, any>
 
         const error = ref(null)
@@ -44,7 +44,7 @@ export default defineComponent({
                     const doctorId = values.value.medico
                     if (doctorId) {
                         const response = (
-                            await system.api.get(
+                            await api.get(
                                 `items/cronograma_medicos/?filter={ "medico": { "_eq": "${doctorId}" }}`
                             )
                         ).data.data[0]
@@ -61,7 +61,7 @@ export default defineComponent({
 
                             // getting ids from doctor relation
                             const doctorScheduleDaysIds = (
-                                await system.api.get(
+                                await api.get(
                                     `items/cronograma_medicos_dias_atendimento/?filter={ "id": { "_in": [${doctorScheduleRelations.toString()}] }}`
                                 )
                             ).data.data.map(
@@ -75,7 +75,7 @@ export default defineComponent({
                             // getting days schedule
                             doctorSchedule.value = parseDoctorSchedule(
                                 (
-                                    await system.api.get(
+                                    await api.get(
                                         `items/dias_atendimento/?filter={ "id": { "_in": [${doctorScheduleDaysIds.toString()}] }}`
                                     )
                                 ).data.data
