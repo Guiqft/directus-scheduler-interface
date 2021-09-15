@@ -65,8 +65,8 @@ var parseDoctorSchedule = function (data) {
     };
     var avaiableDays = data.map(function (el) { return ({
         day: daysMap[el.dia_da_semana],
-        start_time: el.hora_inicio_atendimento.substring(0, el.hora_inicio_atendimento.length - 3) + ":00",
-        end_time: el.hora_final_atendimento.substring(0, el.hora_final_atendimento.length - 3) + ":00",
+        start_time: el.inicio.substring(0, el.inicio.length - 3) + ":00",
+        end_time: el.fim.substring(0, el.fim.length - 3) + ":00",
     }); });
     var disabledDays = Object.keys(daysMap)
         .map(function (day) {
@@ -18121,7 +18121,7 @@ var script = defineComponent({
                         _c.trys.push([0, 8, , 9]);
                         doctorId = values.value.medico;
                         if (!doctorId) return [3, 6];
-                        return [4, api.get("items/cronograma_medicos/?filter={ \"medico\": { \"_eq\": \"" + doctorId + "\" }}")];
+                        return [4, api.get("items/cronograma/?filter={ \"medico\": { \"_eq\": \"" + doctorId + "\" }}")];
                     case 1:
                         response = (_c.sent()).data.data[0];
                         doctorConsultTime.value = response.tempo_atendimento;
@@ -18131,7 +18131,7 @@ var script = defineComponent({
                         return [3, 5];
                     case 2:
                         doctorScheduleRelations = response.dias_de_atendimento;
-                        return [4, api.get("items/cronograma_medicos_dias_atendimento/?filter={ \"id\": { \"_in\": [" + doctorScheduleRelations.toString() + "] }}")];
+                        return [4, api.get("items/cronograma_dias_atendimento/?filter={ \"id\": { \"_in\": [" + doctorScheduleRelations.toString() + "] }}")];
                     case 3:
                         doctorScheduleDaysIds = (_c.sent()).data.data.map(function (_a) {
                             var dias_atendimento_id = _a.dias_atendimento_id;

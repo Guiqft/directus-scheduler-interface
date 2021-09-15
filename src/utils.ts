@@ -11,8 +11,8 @@ export interface IDoctorSchedule {
 
 interface IDoctorScheduleRaw {
     dia_da_semana: string
-    hora_inicio_atendimento: string
-    hora_final_atendimento: string
+    inicio: string
+    fim: string
 }
 
 const parseDoctorSchedule = (data: IDoctorScheduleRaw[]): IDoctorSchedule => {
@@ -28,16 +28,8 @@ const parseDoctorSchedule = (data: IDoctorScheduleRaw[]): IDoctorSchedule => {
 
     const avaiableDays: IScheduleDay[] = data.map((el) => ({
         day: daysMap[el.dia_da_semana],
-        start_time:
-            el.hora_inicio_atendimento.substring(
-                0,
-                el.hora_inicio_atendimento.length - 3
-            ) + ":00",
-        end_time:
-            el.hora_final_atendimento.substring(
-                0,
-                el.hora_final_atendimento.length - 3
-            ) + ":00",
+        start_time: el.inicio.substring(0, el.inicio.length - 3) + ":00",
+        end_time: el.fim.substring(0, el.fim.length - 3) + ":00",
     }))
 
     const disabledDays: number[] = Object.keys(daysMap)

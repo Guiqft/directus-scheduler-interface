@@ -45,7 +45,7 @@ export default defineComponent({
                     if (doctorId) {
                         const response = (
                             await api.get(
-                                `items/cronograma_medicos/?filter={ "medico": { "_eq": "${doctorId}" }}`
+                                `items/cronograma/?filter={ "medico": { "_eq": "${doctorId}" }}`
                             )
                         ).data.data[0]
 
@@ -62,7 +62,7 @@ export default defineComponent({
                             // getting ids from doctor relation
                             const doctorScheduleDaysIds = (
                                 await api.get(
-                                    `items/cronograma_medicos_dias_atendimento/?filter={ "id": { "_in": [${doctorScheduleRelations.toString()}] }}`
+                                    `items/cronograma_dias_atendimento/?filter={ "id": { "_in": [${doctorScheduleRelations.toString()}] }}`
                                 )
                             ).data.data.map(
                                 ({
